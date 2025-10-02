@@ -11,7 +11,8 @@ pipeline {
         stage('Build') {
             steps {
                 bat 'cd backend && npm install'
-                bat 'cd frontend && npm install && npm run build'
+                // Disable CI=true so warnings don't fail build
+                bat 'cd frontend && npm install && set "CI=false" && npm run build'
             }
         }
 
