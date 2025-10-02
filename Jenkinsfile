@@ -64,17 +64,6 @@ pipeline {
             }
         }
 
-        stage('Release') {
-    steps {
-        echo 'Tagging release...'
-        bat 'git config user.name "Reazul Hasan Prince"'
-        bat 'git config user.email "hasanriazul4@gmail.com"'
-        bat 'git tag -a v1.0.%BUILD_NUMBER% -m "Release v1.0.%BUILD_NUMBER%"'
-        bat 'git push origin --tags'
-    }
-}
-
-
         stage('Monitoring') {
             steps {
                 echo 'Simulating monitoring step...'
