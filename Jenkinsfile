@@ -1,7 +1,6 @@
 pipeline {
     agent any
 
-    
     stages {
         stage('Checkout') {
             steps {
@@ -18,8 +17,8 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat 'cd backend && npm test || echo No backend tests'
-                bat 'cd frontend && npm test -- --watchAll=false || echo No frontend tests'
+                bat 'cd backend && npm test'
+                bat 'cd frontend && npm test -- --watchAll=false || echo No tests yet'
             }
         }
 
@@ -27,23 +26,11 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis...'
                 withSonarQubeEnv('SonarQube') {
-                    bat '''
-                        cd backend
-                        sonar-scanner ^
-                          -Dsonar.projectKey=employee-crud ^
-                          -Dsonar.sources=. ^
-                          -Dsonar.host.url=http://localhost:9000 ^
-                          -Dsonar.login=sqa_7d5b05c86a3f4cd557edd7a2a53d93fa21ebfe96
-                    '''
-                    cd ..
-                    bat '''
-                        cd frontend
-                        sonar-scanner ^
-                          -Dsonar.projectKey=employee-crud-frontend ^
-                          -Dsonar.sources=src ^
-                          -Dsonar.host.url=http://localhost:9000 ^
-                          -Dsonar.login=sqa_7d5b05c86a3f4cd557edd7a2a53d93fa21ebfe96
-                    '''
+                    // Backend analysis
+                    bat 'cd backend && sonar-scanner -Dsonar.projectKey=employee-crud -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_7d5b05c86a3f4cd557edd7a2a53d93fa21ebfe96'
+                    
+                    // Frontend analysis
+                    bat 'cd frontend && sonar-scanner -Dsonar.projectKey=employee-crud-frontend -Dsonar.sources=src -Dsonar.host.url=http://localhost:9000 -Dsonar.login=sqa_7d5b05c86a3f4cd557edd7a2a53d93fa21ebfe96'
                 }
             }
         }
@@ -57,9 +44,9 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying app (demo)...'
-                // If no docker-compose, keep simple
-                bat 'echo Deploy backend & frontend to test server'
+                echo 'Deploying app (placeholder)...'
+                // If Docker is installed later, you can use:
+                // bat 'docker-compose up -d --build'
             }
         }
 
@@ -67,21 +54,21 @@ pipeline {
             steps {
                 echo 'Tagging release...'
                 bat 'git tag -a v1.0.%BUILD_NUMBER% -m "Release v1.0.%BUILD_NUMBER%"'
-                bat 'git push origin --tags || echo Skipping tag push (no credentials)'
+                bat 'git push origin --tags'
             }
         }
 
         stage('Monitoring') {
             steps {
-                echo 'Simulating monitoring...'
-                bat 'echo Health Check - Backend & Frontend running'
+                echo 'Checking container health...'
+                bat 'echo Docker not installed yet, skipping health check'
             }
         }
     }
 
     post {
         always {
-            echo "✅ Pipeline finished"
+            echo "Pipeline finished ✅"
         }
     }
 }
