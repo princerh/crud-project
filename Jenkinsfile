@@ -1,7 +1,6 @@
 pipeline {
     agent any
 
-  
     stages {
         stage('Checkout') {
             steps {
@@ -11,15 +10,15 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'cd backend && npm install'
-                sh 'cd frontend && npm install && npm run build'
+                bat 'cd backend && npm install'
+                bat 'cd frontend && npm install && npm run build'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'cd backend && npm test || echo "No tests yet"'
-                sh 'cd frontend && npm test -- --watchAll=false || echo "No tests yet"'
+                bat 'cd backend && npm test || echo No tests yet'
+                bat 'cd frontend && npm test -- --watchAll=false || echo No tests yet'
             }
         }
 
@@ -27,36 +26,36 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis...'
                 // Example:
-                // sh 'sonar-scanner -Dsonar.projectKey=employee-crud'
+                // bat 'sonar-scanner -Dsonar.projectKey=employee-crud'
             }
         }
 
         stage('Security') {
             steps {
                 echo 'Running security scan...'
-                sh 'cd backend && npm audit --audit-level=high || true'
+                bat 'cd backend && npm audit --audit-level=high || exit /b 0'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo 'Deploying app with Docker Compose...'
-                sh 'docker-compose up -d --build'
+                bat 'docker-compose up -d --build'
             }
         }
 
         stage('Release') {
             steps {
                 echo 'Tagging release...'
-                sh 'git tag -a v1.0.$BUILD_NUMBER -m "Release v1.0.$BUILD_NUMBER"'
-                sh 'git push origin --tags'
+                bat 'git tag -a v1.0.%BUILD_NUMBER% -m "Release v1.0.%BUILD_NUMBER%"'
+                bat 'git push origin --tags'
             }
         }
 
         stage('Monitoring') {
             steps {
                 echo 'Checking container health...'
-                sh 'docker ps'
+                bat 'docker ps'
             }
         }
     }
