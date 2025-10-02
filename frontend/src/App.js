@@ -6,11 +6,26 @@ function App() {
   const [form, setForm] = useState({ name: "", position: "", salary: "" });
   const [editingId, setEditingId] = useState(null);
 
+  // 🚨 Unused state (code smell)
+  const [debugMode] = useState(false);
+
   // Load employees
   useEffect(() => {
     fetch("/api/employees")
       .then(res => res.json())
-      .then(data => setEmployees(data));
+      .then(data => {
+        setEmployees(data);
+
+        // 🚨 Unnecessary console log
+        console.log("Employees loaded:", data);
+      });
+
+    // 🚨 Nested if (complexity smell)
+    if (employees && employees.length > 0) {
+      if (employees.length > 2) {
+        console.log("More than 2 employees found");
+      }
+    }
   }, []);
 
   // Handle input change
@@ -29,6 +44,9 @@ function App() {
       .then(newEmp => {
         setEmployees([...employees, newEmp]);
         setForm({ name: "", position: "", salary: "" });
+
+        // 🚨 Extra console log
+        console.log("New employee added successfully!");
       });
   };
 
@@ -58,6 +76,14 @@ function App() {
     setEditingId(emp.id);
     setForm({ name: emp.name, position: emp.position, salary: emp.salary });
   };
+
+  // 🚨 Duplicate function for salary formatting
+  function formatSalary(sal) {
+    return "$" + sal;
+  }
+  function formatSalaryAgain(sal) { // Duplicate code smell
+    return "$" + sal;
+  }
 
   return (
     <Container className="mt-4">
@@ -124,7 +150,8 @@ function App() {
                   <td>{emp.id}</td>
                   <td>{emp.name}</td>
                   <td>{emp.position}</td>
-                  <td>${emp.salary}</td>
+                  {/* Using duplicate formatter */}
+                  <td>{formatSalary(emp.salary)}</td>
                   <td>
                     <Button
                       variant="primary"

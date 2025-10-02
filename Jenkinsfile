@@ -23,13 +23,19 @@ pipeline {
 }
 
 
-        stage('Code Quality') {
-            steps {
-                echo 'Running SonarQube analysis...'
-                // Example:
-                // bat 'sonar-scanner -Dsonar.projectKey=employee-crud'
-            }
+       stage('Code Quality') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            bat '''
+                cd backend
+                sonar-scanner ^
+                  -Dsonar.projectKey=employee-crud ^
+                  -Dsonar.sources=. ^
+                  -Dsonar.host.url=http://localhost:9000
+            '''
         }
+    }
+}
 
         stage('Security') {
             steps {

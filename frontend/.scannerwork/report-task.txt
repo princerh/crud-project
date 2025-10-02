@@ -1,0 +1,6 @@
+projectKey=employee-crud-frontend
+serverUrl=http://localhost:9000
+serverVersion=25.9.0.112764
+dashboardUrl=http://localhost:9000/dashboard?id=employee-crud-frontend
+ceTaskId=3c82cc6b-199c-4057-a819-eaf7eddf2821
+ceTaskUrl=http://localhost:9000/api/ce/task?id=3c82cc6b-199c-4057-a819-eaf7eddf2821
