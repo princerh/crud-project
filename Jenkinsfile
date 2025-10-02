@@ -17,8 +17,8 @@ pipeline {
 
       stage('Test') {
     steps {
-        sh 'cd backend && npm test'
-        sh 'cd frontend && npm test'
+        bat 'cd backend && npm test'
+        bat 'cd frontend && npm test'
     }
 }
 
