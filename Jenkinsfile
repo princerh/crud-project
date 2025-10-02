@@ -15,12 +15,13 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                bat 'cd backend && npm test || echo No tests yet'
-                bat 'cd frontend && npm test -- --watchAll=false || echo No tests yet'
-            }
-        }
+      stage('Test') {
+    steps {
+        sh 'cd backend && npm test'
+        sh 'cd frontend && npm test'
+    }
+}
+
 
         stage('Code Quality') {
             steps {
