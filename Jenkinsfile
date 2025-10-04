@@ -59,10 +59,29 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploy step placeholder (no docker on Windows).'
-                // You can replace this with IIS/PM2/Heroku/Azure deployment later
+                echo '🚀 Deploying Node.js + React app locally...'
+
+                // Step 1: Kill any existing Node processes (optional safety)
+                bat '''
+                taskkill /F /IM node.exe /T 2>NUL || echo "No Node process running"
+                    '''
+
+                // Step 2: Start backend (Express) on port 5000
+                bat '''
+                start "Backend" cmd /c "cd backend && npm install && npm start"
+                '''
+
+                // Step 3: Serve React frontend build on port 3000
+                bat '''
+                start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3000"
+                '''
+
+                echo '✅ Deployment started:'
+                echo '   • Backend → http://localhost:5000'
+                echo '   • Frontend → http://localhost:3000'
             }
         }
+
 
         stage('Monitoring') {
             steps {
