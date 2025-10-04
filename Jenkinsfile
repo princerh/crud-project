@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/princerh/crud-project.git'
@@ -60,54 +61,52 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying Node.js + React app locally...'
+                bat '''
+                    REM === Step 1: Stop any running Node processes ===
+                    taskkill /F /IM node.exe /T 2>NUL || echo "No Node process running"
 
-        bat '''
-        REM === Step 1: Stop any running Node processes ===
-        taskkill /F /IM node.exe /T 2>NUL || echo "No Node process running"
+                    REM === Step 2: Start backend server on port 5000 ===
+                    start "Backend" cmd /c "cd backend && npm install && npm start"
 
-        REM === Step 2: Start backend server on port 5000 ===
-        start "Backend" cmd /c "cd backend && npm install && npm start"
+                    REM === Step 3: Serve React frontend on port 3000 ===
+                    start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3000"
 
-        REM === Step 3: Serve React frontend on port 3000 ===
-        start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3000"
-
-        REM === Step 4: Confirm deployment started ===
-        echo "✅ Backend running on http://localhost:5000"
-        echo "✅ Frontend running on http://localhost:3000"
-        '''
-                }
+                    REM === Step 4: Confirm deployment started ===
+                    echo "✅ Backend running on http://localhost:5000"
+                    echo "✅ Frontend running on http://localhost:3000"
+                '''
+            }
         }
-
 
         stage('Release') {
             steps {
-        echo '📦 Creating new release version...'
-        bat '''
-        git config user.email "you@example.com"
-        git config user.name "Jenkins"
-        git tag -a v1.0.%BUILD_NUMBER% -m "Automated release v1.0.%BUILD_NUMBER%"
-        git push origin --tags
-        echo "✅ Release v1.0.%BUILD_NUMBER% pushed to GitHub"
-        '''
-                }
+                echo '📦 Creating new release version...'
+                bat '''
+                    git config user.email "you@example.com"
+                    git config user.name "Jenkins"
+                    git tag -a v1.0.%BUILD_NUMBER% -m "Automated release v1.0.%BUILD_NUMBER%"
+                    git push origin --tags
+                    echo "✅ Release v1.0.%BUILD_NUMBER% pushed to GitHub"
+                '''
+            }
         }
-
 
         stage('Monitoring') {
             steps {
-            echo '📊 Checking service health...'
-            bat '''
-        curl http://localhost:5000/api/employees || echo "Backend not responding!"
-        curl http://localhost:3000 || echo "Frontend not responding!"
-        echo "✅ Monitoring completed successfully."
-        '''
-                }
+                echo '📊 Checking service health...'
+                bat '''
+                    curl http://localhost:5000/api/employees || echo "Backend not responding!"
+                    curl http://localhost:3000 || echo "Frontend not responding!"
+                    echo "✅ Monitoring completed successfully."
+                '''
+            }
         }
 
+    } // 
 
     post {
         always {
             echo "Pipeline finished ✅"
         }
     }
-}
+} 
