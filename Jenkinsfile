@@ -58,25 +58,28 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo '🚀 Deploying Node.js + React app locally...'
-                bat '''
-                    REM === Step 1: Stop any running Node processes ===
-                    taskkill /F /IM node.exe /T 2>NUL || echo "No Node process running"
+      stage('Deploy') {
+    steps {
+        echo '🚀 Deploying Node.js + React app locally (on alternate ports)...'
 
-                    REM === Step 2: Start backend server on port 5000 ===
-                    start "Backend" cmd /c "cd backend && npm install && npm start"
+        bat '''
+        REM === Step 1: Stop any Jenkins-related Node processes only ===
+        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5050') do taskkill /F /PID %%a 2>NUL
+        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3500') do taskkill /F /PID %%a 2>NUL
 
-                    REM === Step 3: Serve React frontend on port 3000 ===
-                    start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3000"
+        REM === Step 2: Start backend server on port 5050 (instead of 5000) ===
+        start "Backend" cmd /c "cd backend && set PORT=5050 && npm start"
 
-                    REM === Step 4: Confirm deployment started ===
-                    echo "✅ Backend running on http://localhost:5000"
-                    echo "✅ Frontend running on http://localhost:3000"
-                '''
-            }
-        }
+        REM === Step 3: Serve React frontend on port 3500 (instead of 3000) ===
+        start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3500"
+
+        REM === Step 4: Confirm deployment started ===
+        echo "✅ Backend running on http://localhost:5050"
+        echo "✅ Frontend running on http://localhost:3500"
+        '''
+    }
+}
+
 
      stage('Release') {
     steps {
