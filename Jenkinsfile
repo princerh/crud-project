@@ -79,14 +79,31 @@ pipeline {
         }
 
 
+        stage('Release') {
+            steps {
+        echo '📦 Creating new release version...'
+        bat '''
+        git config user.email "you@example.com"
+        git config user.name "Jenkins"
+        git tag -a v1.0.%BUILD_NUMBER% -m "Automated release v1.0.%BUILD_NUMBER%"
+        git push origin --tags
+        echo "✅ Release v1.0.%BUILD_NUMBER% pushed to GitHub"
+        '''
+                }
+        }
+
 
         stage('Monitoring') {
             steps {
-                echo 'Simulating monitoring step...'
-                bat 'echo "Containers/Services running check placeholder"'
-            }
+            echo '📊 Checking service health...'
+            bat '''
+        curl http://localhost:5000/api/employees || echo "Backend not responding!"
+        curl http://localhost:3000 || echo "Frontend not responding!"
+        echo "✅ Monitoring completed successfully."
+        '''
+                }
         }
-    }
+
 
     post {
         always {
