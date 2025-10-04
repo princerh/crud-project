@@ -97,17 +97,40 @@ pipeline {
 }
 
 
-        stage('Monitoring') {
+stage('Monitoring') {
     steps {
         echo '📊 Checking service health...'
         bat '''
-        timeout /t 10 >nul
-        curl http://localhost:5050/api/employees || echo "Backend not responding!"
-        curl http://localhost:3500 || echo "Frontend not responding!"
+        REM === Wait 15 seconds for backend and frontend to start ===
+        timeout /t 15 /nobreak
+
+        REM === Check Backend Health ===
+        for /L %%i in (1,1,3) do (
+            curl http://localhost:5050/api/employees && goto backend_ok
+            echo "Attempt %%i: Backend not ready yet..."
+            timeout /t 5 /nobreak
+        )
+        echo "⚠️ Backend not responding after 3 attempts."
+        exit /b 0
+        :backend_ok
+        echo "✅ Backend running successfully!"
+
+        REM === Check Frontend Health ===
+        for /L %%j in (1,1,3) do (
+            curl http://localhost:3500 && goto frontend_ok
+            echo "Attempt %%j: Frontend not ready yet..."
+            timeout /t 5 /nobreak
+        )
+        echo "⚠️ Frontend not responding after 3 attempts."
+        exit /b 0
+        :frontend_ok
+        echo "✅ Frontend running successfully!"
+
         echo "✅ Monitoring completed successfully."
         '''
     }
 }
+
 
     } // 
 
