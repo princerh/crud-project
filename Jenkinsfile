@@ -98,15 +98,16 @@ pipeline {
 
 
         stage('Monitoring') {
-            steps {
-                echo '📊 Checking service health...'
-                bat '''
-                    curl http://localhost:5000/api/employees || echo "Backend not responding!"
-                    curl http://localhost:3000 || echo "Frontend not responding!"
-                    echo "✅ Monitoring completed successfully."
-                '''
-            }
-        }
+    steps {
+        echo '📊 Checking service health...'
+        bat '''
+        timeout /t 10 >nul
+        curl http://localhost:5050/api/employees || echo "Backend not responding!"
+        curl http://localhost:3500 || echo "Frontend not responding!"
+        echo "✅ Monitoring completed successfully."
+        '''
+    }
+}
 
     } // 
 
