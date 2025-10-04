@@ -61,26 +61,23 @@ pipeline {
             steps {
                 echo '🚀 Deploying Node.js + React app locally...'
 
-                // Step 1: Kill any existing Node processes (optional safety)
-                bat '''
-                taskkill /F /IM node.exe /T 2>NUL || echo "No Node process running"
-                    '''
+        bat '''
+        REM === Step 1: Stop any running Node processes ===
+        taskkill /F /IM node.exe /T 2>NUL || echo "No Node process running"
 
-                // Step 2: Start backend (Express) on port 5000
-                bat '''
-                start "Backend" cmd /c "cd backend && npm install && npm start"
-                '''
+        REM === Step 2: Start backend server on port 5000 ===
+        start "Backend" cmd /c "cd backend && npm install && npm start"
 
-                // Step 3: Serve React frontend build on port 3000
-                bat '''
-                start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3000"
-                '''
+        REM === Step 3: Serve React frontend on port 3000 ===
+        start "Frontend" cmd /c "cd frontend && npm install -g serve && serve -s build -l 3000"
 
-                echo '✅ Deployment started:'
-                echo '   • Backend → http://localhost:5000'
-                echo '   • Frontend → http://localhost:3000'
-            }
+        REM === Step 4: Confirm deployment started ===
+        echo "✅ Backend running on http://localhost:5000"
+        echo "✅ Frontend running on http://localhost:3000"
+        '''
+                }
         }
+
 
 
         stage('Monitoring') {
