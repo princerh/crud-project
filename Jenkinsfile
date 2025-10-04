@@ -78,18 +78,21 @@ pipeline {
             }
         }
 
-        stage('Release') {
-            steps {
-                echo '📦 Creating new release version...'
-                bat '''
-                    git config user.email "you@example.com"
-                    git config user.name "Jenkins"
-                    git tag -a v1.0.%BUILD_NUMBER% -m "Automated release v1.0.%BUILD_NUMBER%"
-                    git push origin --tags
-                    echo "✅ Release v1.0.%BUILD_NUMBER% pushed to GitHub"
-                '''
-            }
+     stage('Release') {
+    steps {
+        echo '📦 Creating new release version...'
+        withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+            bat '''
+            git config user.email "you@example.com"
+            git config user.name "Jenkins"
+            git tag -a v1.0.%BUILD_NUMBER% -m "Automated release v1.0.%BUILD_NUMBER%"
+            git push https://%GIT_USER%:%GIT_PASS%@github.com/princerh/crud-project.git --tags
+            echo "✅ Release v1.0.%BUILD_NUMBER% pushed to GitHub"
+            '''
         }
+    }
+}
+
 
         stage('Monitoring') {
             steps {
